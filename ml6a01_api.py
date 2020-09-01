@@ -40,39 +40,54 @@ def check_arguments_errors(args):
 
 
 def video_capture(frame_queue, darknet_image_queue):
-    while cap.isOpened():
-        for _ in range(10):ret, frame = cap.read()
-        frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
-        if not ret:break
-        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        frame_resized = cv2.resize(frame_rgb, (width, height),
-                                   interpolation=cv2.INTER_LINEAR)
-        frame_queue.put(frame_resized)
-        darknet.copy_image_from_bytes(darknet_image, frame_resized.tobytes())
-        darknet_image_queue.put(darknet_image)
-    cap.release()
+    global cap
+    while True:
+        while cap is None:
+            cap = get_video_capture(input_path)
+            time.sleep(10)
+        while cap.isOpened():
+            for _ in range(10):ret, frame = cap.read()
+            frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
+            if not ret:break
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_resized = cv2.resize(frame_rgb, (width, height),
+                                       interpolation=cv2.INTER_LINEAR)
+            frame_queue.put(frame_resized)
+            darknet.copy_image_from_bytes(darknet_image, frame_resized.tobytes())
+            darknet_image_queue.put(darknet_image)
+        try:cap.release()
+        except:pass
+        cap = get_video_capture(input_path)
 ans = 0
 def inference(darknet_image_queue, detections_queue, fps_queue):
     global ans
-    while cap.isOpened():
-        darknet_image = darknet_image_queue.get()
-        prev_time = time.time()
-        detections = darknet.detect_image(network, class_names, darknet_image, thresh=args.thresh)
-        detections_queue.put(detections)
-        fps = int(1/(time.time() - prev_time))
-        fps_queue.put(fps)
-        print("FPS: {}".format(fps))
-        ans = (darknet.print_detections(detections, True))
-    cap.release()
+    global cap
+    while True:
+        while cap is None:pass
+        while cap.isOpened():
+            darknet_image = darknet_image_queue.get()
+            prev_time = time.time()
+            detections = darknet.detect_image(network, class_names, darknet_image, thresh=args.thresh)
+            detections_queue.put(detections)
+            fps = int(1/(time.time() - prev_time))
+            fps_queue.put(fps)
+            print("FPS: {}".format(fps))
+            ans = (darknet.print_detections(detections, True))
+        try:cap.release()
+        except:time.sleep(3)
 
 
 def drawing(frame_queue, detections_queue, fps_queue):
-    while cap.isOpened():
-        frame_resized = frame_queue.get()
-        detections = detections_queue.get()
-        fps = fps_queue.get()
-        if 0:print(frame_resized,detections,fps)
-    cap.release()
+    global cap
+    while True:
+        while cap is None:pass
+        while cap.isOpened():
+            frame_resized = frame_queue.get()
+            detections = detections_queue.get()
+            fps = fps_queue.get()
+            if 0:print(frame_resized,detections,fps)
+        try:cap.release()
+        except:time.sleep(3)
 
 class VideoCaptureDaemon(Thread):
     def __init__(self, video, result_queue):
@@ -114,7 +129,7 @@ if __name__ == '__main__':
     width = darknet.network_width(network)
     height = darknet.network_height(network)
     darknet_image = darknet.make_image(width, height, 3)
-    input_path = "http://10.96.32.29:8081"
+    input_path = "http://192.168.3.102:8081"
     cap = get_video_capture(input_path)
     while cap is None:
         cap = get_video_capture(input_path)
@@ -124,4 +139,4 @@ if __name__ == '__main__':
     Thread(target=inference, args=(darknet_image_queue, detections_queue, fps_queue),daemon=True).start()
     Thread(target=drawing, args=(frame_queue, detections_queue, fps_queue),daemon=True).start()
     #web.run_app(app)
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0',debug=False)
