@@ -10,16 +10,21 @@ from queue import Queue,Empty
 
 def parser():
     parser = argparse.ArgumentParser(description="YOLO Object Detection")
-    parser.add_argument("--input", type=str, default=0,
-                        help="video source. If empty, uses webcam 0 stream")
-    parser.add_argument("--out_filename", type=str, default="",
-                        help="inference video name. Not saved if empty")
     parser.add_argument("--weights", default="yolov4.weights",
                         help="yolo weights path")
+
+    parser.add_argument("--input", type=str, default="http://10.96.32.29:8081",
+                        help="URL")
+    """
+    parser.add_argument("--out_filename", type=str, default="",
+                        help="inference video name. Not saved if empty")
+    
+
     parser.add_argument("--dont_show", action='store_true',
                         help="windown inference display. For headless systems")
     parser.add_argument("--ext_output", action='store_true',
                         help="display bbox coordinates of detected objects")
+    """
     parser.add_argument("--config_file", default="yolov4.cfg",
                         help="path to config file")
     parser.add_argument("--data_file", default="obj.data",
@@ -89,6 +94,7 @@ def drawing(frame_queue, detections_queue, fps_queue):
         try:cap.release()
         except:time.sleep(3)
 
+# Set IPCAM connection timeout
 class VideoCaptureDaemon(Thread):
     def __init__(self, video, result_queue):
         super().__init__()
@@ -100,13 +106,12 @@ class VideoCaptureDaemon(Thread):
 def get_video_capture(video, timeout=10):
     res_queue = Queue()
     #if time.strftime("%H") not in ['6','7','8']:time.sleep(3600)
-    print(time.strftime("%H"))
     VideoCaptureDaemon(video, res_queue).start()
     try:
         return res_queue.get(block=True, timeout=timeout)
     except Empty:
         print('cv2.VideoCapture: could not grab input ({}). Timeout occurred after {:.2f}s'.format(video, timeout))
-        
+     
 from flask import Flask
 app = Flask(__name__)
 @app.route('/')
@@ -131,7 +136,7 @@ if __name__ == '__main__':
     width = darknet.network_width(network)
     height = darknet.network_height(network)
     darknet_image = darknet.make_image(width, height, 3)
-    input_path = "http://10.96.32.29:8081"
+    input_path = args.input
     cap = get_video_capture(input_path)
     while cap is None:
         cap = get_video_capture(input_path)
@@ -140,5 +145,4 @@ if __name__ == '__main__':
     Thread(target=video_capture, args=(frame_queue, darknet_image_queue),daemon=True).start()
     Thread(target=inference, args=(darknet_image_queue, detections_queue, fps_queue),daemon=True).start()
     Thread(target=drawing, args=(frame_queue, detections_queue, fps_queue),daemon=True).start()
-    #web.run_app(app)
     app.run(host='0.0.0.0',debug=False)
