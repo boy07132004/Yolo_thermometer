@@ -63,7 +63,7 @@ def inference(darknet_image_queue, detections_queue, fps_queue):
     global ans
     global cap
     while True:
-        while cap is None:pass
+        while cap is None:ans=-99
         while cap.isOpened():
             darknet_image = darknet_image_queue.get()
             prev_time = time.time()
@@ -99,6 +99,8 @@ class VideoCaptureDaemon(Thread):
         self.result_queue.put(cv2.VideoCapture(self.video))
 def get_video_capture(video, timeout=10):
     res_queue = Queue()
+    #if time.strftime("%H") not in ['6','7','8']:time.sleep(3600)
+    print(time.strftime("%H"))
     VideoCaptureDaemon(video, res_queue).start()
     try:
         return res_queue.get(block=True, timeout=timeout)
@@ -129,7 +131,7 @@ if __name__ == '__main__':
     width = darknet.network_width(network)
     height = darknet.network_height(network)
     darknet_image = darknet.make_image(width, height, 3)
-    input_path = "http://192.168.3.102:8081"
+    input_path = "http://10.96.32.29:8081"
     cap = get_video_capture(input_path)
     while cap is None:
         cap = get_video_capture(input_path)
