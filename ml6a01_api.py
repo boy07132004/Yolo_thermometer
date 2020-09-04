@@ -15,16 +15,7 @@ def parser():
 
     parser.add_argument("--input", type=str, default="http://10.96.32.29:8081",
                         help="URL")
-    """
-    parser.add_argument("--out_filename", type=str, default="",
-                        help="inference video name. Not saved if empty")
-    
 
-    parser.add_argument("--dont_show", action='store_true',
-                        help="windown inference display. For headless systems")
-    parser.add_argument("--ext_output", action='store_true',
-                        help="display bbox coordinates of detected objects")
-    """
     parser.add_argument("--config_file", default="yolov4.cfg",
                         help="path to config file")
     parser.add_argument("--data_file", default="obj.data",
@@ -105,7 +96,7 @@ class VideoCaptureDaemon(Thread):
         self.result_queue.put(cv2.VideoCapture(self.video))
 def get_video_capture(video, timeout=10):
     res_queue = Queue()
-    #if time.strftime("%H") not in ['6','7','8']:time.sleep(3600)
+    #if time.strftime("%H") not in ['6','7','8','14']:time.sleep(3600)
     VideoCaptureDaemon(video, res_queue).start()
     try:
         return res_queue.get(block=True, timeout=timeout)
