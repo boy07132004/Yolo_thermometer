@@ -25,6 +25,7 @@ import math
 import random
 import os
 
+
 class BOX(Structure):
     _fields_ = [("x", c_float),
                 ("y", c_float),
@@ -190,7 +191,7 @@ if os.name == "nt":
     cwd = os.path.dirname(__file__)
     os.environ['PATH'] = cwd + ';' + os.environ['PATH']
     winGPUdll = os.path.join(cwd, "yolo_cpp_dll.dll")
-    winNoGPUdll = os.path.join(cwd, "yolo_cpp_dll_no_gpu.dll")
+    winNoGPUdll = os.path.join(cwd, "yolo_cpp_dll_nogpu.dll")
     envKeys = list()
     for k, v in os.environ.items():
         envKeys.append(k)
