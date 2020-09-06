@@ -38,11 +38,14 @@ def check_arguments_errors(args):
 
 def video_capture(darknet_image_queue):
     global cap
+    global text
     while True:
         while cap is None:
+            text = "Camera disconnect."
             cap = get_video_capture(input_path)
             time.sleep(10)
         while cap.isOpened():
+            if text == "Camera disconnect.":text="請刷卡量測"
             for _ in range(10):ret, frame = cap.read()
             frame = cv2.rotate(frame,cv2.ROTATE_90_CLOCKWISE)
             if not ret:break
@@ -83,9 +86,9 @@ class VideoCaptureDaemon(Thread):
     def run(self):
         self.result_queue.put(cv2.VideoCapture(self.video))
 def get_video_capture(video, timeout=10):
-    res_queue = Queue()
-    VideoCaptureDaemon(video, res_queue).start()
     try:
+        res_queue = Queue()
+        VideoCaptureDaemon(video, res_queue).start()
         return res_queue.get(block=True, timeout=timeout)
     except Empty:
         print('cv2.VideoCapture: could not grab input ({}). Timeout occurred after {:.2f}s'.format(video, timeout))
@@ -93,32 +96,40 @@ def get_video_capture(video, timeout=10):
      
 from flask import Flask,render_template,request
 app = Flask(__name__)
+last_temp = 0.0
+text = "請刷卡量測"
 
-info = {"name":None,"temp":0.0}
+
 @app.route("/", methods=['GET','POST'])
 def submit():
-    global info
     global flag
     global infer_list
+    global last_temp
+    global text
+    try:
+        text = "請刷卡量測" if cap.isOpened() else "Waiting for camera server."
+    except:
+        text = "Waiting for camera server."
     if request.method=='POST':
-        print('RECV POST')
-        hid = request.values.get('hid')
-        time_now = time.time()
-        infer_list = []
-        flag = True
-        while time.time()-time_now<10 and flag:
-            while time.time()-time_now<2:pass
-            while time.time()-time_now<5:pass
-            counter = Counter(infer_list)
-            print(counter)
-            for temp,times in counter.items():
-                if temp>42 or temp<33:continue
-                if (times>4 and temp!=info['temp']) or times>5:
-                    info = {"name":hid,"temp":temp}
-                    flag = False
-                    break
-        print(info)
-    return render_template("index.html",name=info["name"],temp=info['temp'])
+        if text != "Camera disconnect.":
+            text = "請重新量測"
+            print('RECV POST')
+            hid = request.values.get('hid')
+            time_now = time.time()
+            flag = True
+            while time.time()-time_now<12 and flag:
+                while time.time()-time_now<1.5:infer_list.clear()
+                while time.time()-time_now<4:pass
+                counter = Counter(infer_list)
+                print(counter)
+                for temp,times in counter.items():
+                    if temp>42 or temp<33:continue
+                    if (times>2 and temp!=last_temp) or times>3:
+                        text = f"Hi  {hid} 您的體溫是 {temp} °C" if temp<37.4 else "體溫過高，請重新量測"
+                        flag = False
+                        last_temp=temp
+                        break
+    return render_template("index.html",text=text)
     
 
 if __name__ == '__main__':

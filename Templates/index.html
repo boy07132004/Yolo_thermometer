@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>ML6A01</title>
+    </head>
+    <body>
+        <form method="post" name='HID' onsubmit='changeRead()' style>
+            <center><input type="text" autocomplete="off" name='hid' id="hid" style="font-size:40px" autofocus></center>
+            <input type="submit" name='submit' style="position: absolute;left: -9999px;">
+        </form>
+        <center><h1 id="stat" style="font-size:100px;" >{{text}}</h1></center>
+        <script>
+            function changeRead() {
+               document.getElementById("hid").readOnly = true;
+               document.getElementById("stat").innerText = "量測中請稍後"
+            }
+         </script>
+    </body>
+</html>
