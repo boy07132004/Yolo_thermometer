@@ -8,6 +8,9 @@ Fork from https://github.com/AlexeyAB/darknet/
 
 ######
 ######
+## Infrared thermometer
+
 <img src="https://github.com/boy07132004/Yolo_thermometer/blob/master/appearance.jpeg" width="50%" height="50%">
-# 
+## Web
+
 <img src="https://github.com/boy07132004/Yolo_thermometer/blob/master/web.png" width="70%" height="70%">
