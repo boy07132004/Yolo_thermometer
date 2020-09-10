@@ -1,4 +1,5 @@
 # Yolo_thermometer
+## Auto record temperature by image recognition on a infrared thermometer.
 Fork from https://github.com/AlexeyAB/darknet/
 ######
 
@@ -7,4 +8,6 @@ Fork from https://github.com/AlexeyAB/darknet/
 
 ######
 ######
-<img src="https://github.com/boy07132004/Yolo_thermometer/blob/master/appearance.jpeg" width="30%" height="30%">
+<img src="https://github.com/boy07132004/Yolo_thermometer/blob/master/appearance.jpeg" width="50%" height="50%">
+# 
+<img src="https://github.com/boy07132004/Yolo_thermometer/blob/master/web.png" width="70%" height="70%">
