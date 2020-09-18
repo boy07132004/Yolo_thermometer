@@ -4,7 +4,7 @@ Fork from https://github.com/AlexeyAB/darknet/
 ######
 
 1.  Set up raspberry pi zero as a web camera and install on a thermometer.
-2.  Recognize the number by Yolov4 in your server.
+2.  Recognize the number on the thermometer by Yolov4 in your server.
 
 ######
 ######
