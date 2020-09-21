@@ -55,7 +55,6 @@ def video_capture(darknet_image_queue):
                                            interpolation=cv2.INTER_LINEAR)
                 darknet.copy_image_from_bytes(darknet_image, frame_resized.tobytes())
                 darknet_image_queue.put(darknet_image)
-            logging.debug("video_capture cap is not opened.")
             cap.release()
         except:logging.debug("video_capture except.")
         cap = get_video_capture(input_path)
@@ -72,10 +71,8 @@ def inference(darknet_image_queue):
                 ans = (darknet.print_detections(detections, True))
                 print(f"temp: {ans}")
                 if flag:infer_list.append(ans)
-            logging.debug("Inference cap is not opened.")
             cap.release()
         except:
-            logging.debug("Inference except.")
             time.sleep(5)
    
 # Set IPCAM connection timeout
