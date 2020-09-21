@@ -7,6 +7,7 @@ proc = None
 def run():
     global pid
     global proc
+    count = 1
     try:
         while True:
             # Check camera is online now.
@@ -16,7 +17,11 @@ def run():
                 check = subprocess.check_output(f"ping -n 1 {cam_server}") 
                 break
             except:
-                print(time.ctime(),"Can't reach camera server")
+                if count%10==0:
+                    print(time.ctime(),"Can't reach camera server")
+                    count=1
+                else:
+                    count+=1
                 time.sleep(6)
         proc = subprocess.Popen(r"python D:\Thermometer\ML6A01\ml6a01_api.py")
         pid = proc.pid
