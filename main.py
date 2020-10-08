@@ -12,7 +12,7 @@ def run():
         while True:
             # Check camera is online now.
             try:
-                cam_server = "192.168.0.200"
+                cam_server = "10.96.32.29"
                 # Ping 1 time in Windows OS.
                 check = subprocess.check_output(f"ping -n 1 {cam_server}") 
                 break
@@ -23,7 +23,7 @@ def run():
                 else:
                     count+=1
                 time.sleep(6)
-        proc = subprocess.Popen(r"python D:\Thermometer\ML6A01\ml6a01_api.py")
+        proc = subprocess.Popen(r"C:\Users\chemingwu\Desktop\zm\Scripts\python.exe ml6a01_api.py")
         pid = proc.pid
         print(pid)
     except:
